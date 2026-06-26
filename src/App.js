@@ -438,6 +438,26 @@ const styles = `
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(185,28,28,0.15);
   }
+  .btn-back-login {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    background: transparent;
+    color: #4b5563;
+    border: 1.5px solid #d1d5db;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, background-color 0.15s;
+  }
+  .btn-back-login:hover {
+    transform: translateY(-1px);
+    background-color: #f3f4f6;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
 
   .stat-grid {
     display: grid;
@@ -1529,6 +1549,7 @@ export default function App() {
   // ── Admin State ──
   const [adminUser, setAdminUser]       = useState("");
   const [adminPass, setAdminPass]       = useState("");
+  const [adminLoginReferrer, setAdminLoginReferrer] = useState("result");
   const [dashboardData, setDashboardData] = useState([]);
   const [dashLoading, setDashLoading]   = useState(false);
   const [searchQuery, setSearchQuery]   = useState("");
@@ -1915,8 +1936,9 @@ export default function App() {
     setAnswered(Object.keys(updated).length);
   }
 
-  function handleLanguageChange(lang) {
-    if (lang === "Hindi" && hindiQuestions.length === 0 && !isFetchingHindi) {
+  // ── Load Hindi Questions on Demand ──
+  useEffect(() => {
+    if (language === "Hindi" && hindiQuestions.length === 0 && !isFetchingHindi) {
       setIsFetchingHindi(true);
       fetch(QUESTIONS_API)
         .then((res) => res.json())
@@ -1944,6 +1966,9 @@ export default function App() {
           setIsFetchingHindi(false);
         });
     }
+  }, [language, hindiQuestions.length, isFetchingHindi]);
+
+  function handleLanguageChange(lang) {
     setLanguage(lang);
     localStorage.setItem("exam_language", lang);
   }
@@ -2006,6 +2031,13 @@ export default function App() {
       if (match) return match;
     }
     return q;
+  }
+
+  // Helper to check if a question contains a non-empty explanation
+  function hasExplanation(q) {
+    if (!q) return false;
+    const exp = q.Explanation || q.explanation;
+    return typeof exp === "string" && exp.trim().length > 0;
   }
 
   // Helper to format Date objects or strings into clean { dateStr, timeStr }
@@ -2217,6 +2249,16 @@ export default function App() {
                 <button className="btn-gold-grad" onClick={startExam}>
                   🚀 Start Exam
                 </button>
+
+                <button
+                  className="btn-dashboard"
+                  onClick={() => {
+                    setAdminLoginReferrer("login");
+                    setView("adminLogin");
+                  }}
+                >
+                  📊 Dashboard
+                </button>
               </div>
             )}
 
@@ -2260,9 +2302,9 @@ export default function App() {
 
                 <button
                   className="btn-back-link"
-                  onClick={() => setView("result")}
+                  onClick={() => setView(adminLoginReferrer)}
                 >
-                  ← Back to Result
+                  {adminLoginReferrer === "login" ? "← Back to Login" : "← Back to Result"}
                 </button>
               </div>
             )}
@@ -2554,7 +2596,10 @@ export default function App() {
                   margin: "8px auto 0",
                   display: "block",
                 }}
-                onClick={() => setView("adminLogin")}
+                onClick={() => {
+                  setAdminLoginReferrer("result");
+                  setView("adminLogin");
+                }}
               >
                 🔐 View Dashboard
               </button>
@@ -2769,7 +2814,7 @@ export default function App() {
                             </div>
 
                             {/* Explanation Card */}
-                            {(rawQ.Explanation || rawQ.explanation) && (
+                            {hasExplanation(rawQ) && (
                               <div style={{ marginTop: '16px', padding: '16px', background: '#eff6ff', borderRadius: '12px', border: '1px solid #bfdbfe', textAlign: 'left' }}>
                                 <strong style={{ color: '#1e40af', fontSize: '12px', display: 'block', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
                                   💡 Solution / Explanation
@@ -2952,11 +2997,11 @@ export default function App() {
                   {isRefreshing ? "Refreshing..." : "Refresh"}
                 </button>
                 <button
-                  className="btn-logout"
+                  className="btn-back-login"
                   onClick={resetForNewCandidate}
-                  title="Logout"
+                  title="Back to Login"
                 >
-                  🚪 Logout
+                  ← Back to Login
                 </button>
               </div>
             </div>
