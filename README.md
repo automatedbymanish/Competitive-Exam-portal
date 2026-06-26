@@ -65,6 +65,38 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/a
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
 
-### `npm run build` fails to minify
-
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+---
+
+## 📝 LaTeX Formatting Guide for Google Sheets
+
+The Competitive Exam Portal supports LaTeX syntax for rendering professional mathematical equations and scientific formulas. Use standard Markdown delimiters:
+- **Inline Math**: wrap equations in single dollar signs `$ ... $` (renders within a sentence).
+- **Display Math**: wrap equations in double dollar signs `$$ ... $$` (renders centered on a new line).
+
+### Copy-Pasteable Sample Questions (Google Sheets Format)
+
+You can copy and paste the following rows directly into your Google Sheets (`Question` and `Question Hindi` tabs):
+
+| ID | Subject Name | Question | Option A | Option B | Option C | Option D | Correct Answer | Marks | Pass Marks | Explanation |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :---: | :---: | :---: | :--- |
+| **2001** | Mathematics | What is the value of $x$ in the quadratic equation $x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$ when $a=1$, $b=-3$, and $c=2$? | $x = 1$ or $x = 2$ | $x = -1$ or $x = -2$ | $x = 3$ or $x = 2$ | $x = 0$ | **A** | 1 | 7 | The equation resolves to $x=\frac{-(-3)\pm\sqrt{(-3)^2-4(1)(2)}}{2(1)} = \frac{3\pm\sqrt{9-8}}{2} = \frac{3\pm 1}{2}$. Thus, $x = 2$ or $x = 1$. |
+| **2002** | Mathematics | Evaluate the definite integral: $$ \int_0^1 x^2 \, dx $$ | $\frac{1}{3}$ | $\frac{1}{2}$ | $1$ | $\frac{2}{3}$ | **A** | 1 | 7 | The anti-derivative of $x^2$ is $\frac{x^3}{3}$. Evaluating from $0$ to $1$ gives: $$ \left[ \frac{x^3}{3} \right]_0^1 = \frac{1^3}{3} - \frac{0^3}{3} = \frac{1}{3} $$. |
+| **2003** | Mathematics | What is the sum of the squares of the first $n$ natural numbers represented by $$ \sum_{i=1}^{n} i^2 $$? | $\frac{n(n+1)(2n+1)}{6}$ | $\frac{n(n+1)}{2}$ | $n^2$ | $\frac{n(n+1)(2n+1)}{2}$ | **A** | 1 | 7 | The standard formula for the sum of squares is $$ \sum_{i=1}^{n} i^2 = \frac{n(n+1)(2n+1)}{6} $$. |
+| **2004** | General Science | Which acid is represented by the chemical formula $H_2SO_4$? | Hydrochloric Acid | Nitric Acid | Sulfuric Acid | Carbonic Acid | **C** | 1 | 7 | $H_2SO_4$ consists of 2 Hydrogen atoms, 1 Sulfur atom, and 4 Oxygen atoms, representing **Sulfuric Acid**. |
+| **2005** | General Science | When carbon dioxide ($CO_2$) reacts with water ($H_2O$), which weak acid is formed? | $H_2SO_4$ | $HNO_3$ | $H_2CO_3$ | $HCl$ | **C** | 1 | 7 | The reaction is represented by: $CO_2 + H_2O \rightarrow H_2CO_3$ (Carbonic Acid). |
+| **2006** | Mathematics | Solve the matrix addition: $$ \begin{bmatrix}1&2\\3&4\end{bmatrix} + \begin{bmatrix}5&6\\7&8\end{bmatrix} $$ | $$ \begin{bmatrix}6&8\\10&12\end{bmatrix} $$ | $$ \begin{bmatrix}5&12\\21&32\end{bmatrix} $$ | $$ \begin{bmatrix}4&4\\4&4\end{bmatrix} $$ | $$ \begin{bmatrix}1&1\\1&1\end{bmatrix} $$ | **A** | 1 | 7 | Adding corresponding elements: $1+5=6$, $2+6=8$, $3+7=10$, $4+8=12$. |
+
+### Common LaTeX Cheatsheet for Sheet Authors
+
+- **Fractions**: `$\frac{numerator}{denominator}$` (e.g. `$\frac{2x+3}{x-1}$`)
+- **Square Root**: `$\sqrt{expression}$` (e.g. `$\sqrt{x^2+y^2}$`)
+- **Cube Root**: `$\sqrt[3]{expression}$` (e.g. `$\sqrt[3]{8} = 2$`)
+- **Superscripts (Powers)**: `x^2` (e.g. `$x^2$`)
+- **Subscripts**: `H_2` (e.g. `$H_2$`)
+- **Integration**: `$\int_a^b expression \, dx$` (e.g. `$\int_0^1 x^2 \, dx$`)
+- **Summation (Sigma)**: `$\sum_{i=1}^{n} expression$` (e.g. `$\sum_{i=1}^{n} i$`)
+- **Greek symbols**: `$\alpha$`, `$\beta$`, `$\theta$`, `$\pi$`, `$\lambda$`
+- **Matrices**: `$$ \begin{bmatrix} a & b \\ c & d \end{bmatrix} $$`
+

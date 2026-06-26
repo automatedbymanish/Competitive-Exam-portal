@@ -1,6 +1,9 @@
 import { useEffect, useState, useCallback } from "react";
 import loginBg from "./assets/login-bg.png";
 import oswalLogo from "./assets/oswal-logo.png";
+import katex from "katex";
+import "katex/dist/katex.min.css";
+
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap');
@@ -1428,6 +1431,59 @@ const SUBJECTS_LIST = [
   "Reasoning"
 ];
 
+function LatexRenderer({ text, style }) {
+  if (typeof text !== 'string') return <span style={style}>{String(text || '')}</span>;
+
+  const regex = /(\$\$[\s\S]+?\$\$|\$[\s\S]+?\$)/g;
+  const parts = text.split(regex);
+
+  return (
+    <span style={style}>
+      {parts.map((part, index) => {
+        if (part.startsWith('$$') && part.endsWith('$$')) {
+          const formula = part.slice(2, -2).trim();
+          try {
+            const html = katex.renderToString(formula, {
+              throwOnError: false,
+              strict: false,
+              displayMode: true
+            });
+            return (
+              <span 
+                key={index} 
+                style={{ display: 'block', margin: '0.5em 0' }}
+                dangerouslySetInnerHTML={{ __html: html }} 
+              />
+            );
+          } catch (e) {
+            return <code key={index}>{part}</code>;
+          }
+        } else if (part.startsWith('$') && part.endsWith('$')) {
+          const formula = part.slice(1, -1).trim();
+          try {
+            const html = katex.renderToString(formula, {
+              throwOnError: false,
+              strict: false,
+              displayMode: false
+            });
+            return (
+              <span 
+                key={index} 
+                style={{ display: 'inline-block' }}
+                dangerouslySetInnerHTML={{ __html: html }} 
+              />
+            );
+          } catch (e) {
+            return <code key={index}>{part}</code>;
+          }
+        } else {
+          return <span key={index}>{part}</span>;
+        }
+      })}
+    </span>
+  );
+}
+
 function saveAttemptData(name, mobile, subject, questions, answers, scoreStr, percentage, verdict, isoDate) {
   const correctAnswers = questions.map(q => String(q["Correct Answer"] || q.correct || q.correctAnswer || "").trim());
   const attempt = {
@@ -2242,7 +2298,7 @@ export default function App() {
                           <>
                             <div className="q-header-active">
                               <span className="q-num-label">Question {currentQuestionIndex + 1} of {filteredQuestions.length}</span>
-                              <div className="q-text-active">{displayQ.Question || displayQ.question}</div>
+                              <div className="q-text-active"><LatexRenderer text={displayQ.Question || displayQ.question} /></div>
                             </div>
                             
                             <div className="options-container-active">
@@ -2267,7 +2323,7 @@ export default function App() {
                                       style={{ display: 'none' }}
                                     />
                                     <span className="opt-badge-active">{key}</span>
-                                    <span className="opt-text-active">{text}</span>
+                                    <span className="opt-text-active"><LatexRenderer text={text} /></span>
                                   </label>
                                 );
                               })}
@@ -2545,14 +2601,34 @@ export default function App() {
                 { key: "D", text: rawQ ? (rawQ["Option D"] || rawQ.optionD || rawQ.optiond) : "" }
               ];
 
-              const getOptionText = (key) => {
+
+
+              const getOptionRawText = (key) => {
                 const opt = optionsList.find(o => o.key === key);
-                return opt ? `Option ${key}: ${opt.text}` : `Option ${key}`;
+                return opt ? opt.text : "";
               };
 
               return (
                 <div style={{ maxWidth: '860px', margin: '0 auto' }}>
                   
+                  {/* Language Toggle */}
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+                    <div className="lang-toggle-buttons">
+                      <button 
+                        className={`lang-toggle-btn ${language === 'English' ? 'active' : ''}`}
+                        onClick={() => handleLanguageChange('English')}
+                      >
+                        English
+                      </button>
+                      <button 
+                        className={`lang-toggle-btn ${language === 'Hindi' ? 'active' : ''}`}
+                        onClick={() => handleLanguageChange('Hindi')}
+                      >
+                        हिन्दी
+                      </button>
+                    </div>
+                  </div>
+
                   {/* Top Summary Card */}
                   <div className="card" style={{ marginBottom: '24px', padding: '28px' }}>
                     <h2 style={{ fontFamily: "'Nunito', sans-serif", fontSize: '22px', fontWeight: 900, marginBottom: '16px', color: '#1a1d3b', textAlign: 'center' }}>
@@ -2619,7 +2695,7 @@ export default function App() {
                             </div>
 
                             <div className="q-header-active" style={{ marginBottom: '18px' }}>
-                              <div className="q-text-active" style={{ fontSize: '16px' }}>{rawQ.Question || rawQ.question}</div>
+                              <div className="q-text-active" style={{ fontSize: '16px' }}><LatexRenderer text={rawQ.Question || rawQ.question} /></div>
                             </div>
 
                             <div className="options-container-active" style={{ gap: '8px' }}>
@@ -2660,7 +2736,7 @@ export default function App() {
                                     >
                                       {key}
                                     </span>
-                                    <span className="opt-text-active" style={{ color: 'inherit' }}>{text}</span>
+                                    <span className="opt-text-active" style={{ color: 'inherit' }}><LatexRenderer text={text} /></span>
                                     <span style={{ marginLeft: 'auto', fontSize: '16px' }}>
                                       {isCorrectOpt && "✅"}
                                       {isSelectedOpt && !isCorrectOpt && "❌"}
@@ -2676,9 +2752,9 @@ export default function App() {
                                 <strong style={{ color: '#475569', fontSize: '12px', display: 'block', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Your Answer</strong>
                                 <div style={{ fontSize: '14px', fontWeight: 700, color: '#1a1d3b', marginTop: '2px' }}>
                                   {userAnswer ? (
-                                    <>
-                                      {getOptionText(userAnswer)} {userAnswer === correctAnswer ? "✅" : "❌"}
-                                    </>
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                                      Option {userAnswer}: <LatexRenderer text={getOptionRawText(userAnswer)} /> {userAnswer === correctAnswer ? "✅" : "❌"}
+                                    </span>
                                   ) : (
                                     <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>Not Attempted ❌</span>
                                   )}
@@ -2686,21 +2762,21 @@ export default function App() {
                               </div>
                               <div>
                                 <strong style={{ color: '#475569', fontSize: '12px', display: 'block', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Correct Answer</strong>
-                                <div style={{ fontSize: '14px', fontWeight: 700, color: '#16a34a', marginTop: '2px' }}>
-                                  {getOptionText(correctAnswer)} ✅
+                                <div style={{ fontSize: '14px', fontWeight: 700, color: '#16a34a', marginTop: '2px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                                  Option {correctAnswer}: <LatexRenderer text={getOptionRawText(correctAnswer)} /> ✅
                                 </div>
                               </div>
                             </div>
 
                             {/* Explanation Card */}
-                            {rawQ.Explanation && (
+                            {(rawQ.Explanation || rawQ.explanation) && (
                               <div style={{ marginTop: '16px', padding: '16px', background: '#eff6ff', borderRadius: '12px', border: '1px solid #bfdbfe', textAlign: 'left' }}>
                                 <strong style={{ color: '#1e40af', fontSize: '12px', display: 'block', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
-                                  💡 Explanation
+                                  💡 Solution / Explanation
                                 </strong>
-                                <p style={{ fontSize: '13.5px', color: '#1e3a8a', lineHeight: '1.5' }}>
-                                  {rawQ.Explanation}
-                                </p>
+                                <div style={{ fontSize: '13.5px', color: '#1e3a8a', lineHeight: '1.5' }}>
+                                  <LatexRenderer text={rawQ.Explanation || rawQ.explanation} />
+                                </div>
                               </div>
                             )}
                           </>
